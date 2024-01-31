@@ -1,5 +1,7 @@
 #include "balancer.h"
 #include "controlplane.h"
+#include <cstdint>
+#include <optional>
 
 eResult balancer_t::init()
 {
@@ -112,7 +114,15 @@ void balancer_t::RealFind(
 					proto_service_key->set_proto(::common::icp_proto::NetProto::udp);
 					break;
 			}
-			proto_service_key->set_port(port);
+
+			if (port.has_value())
+			{
+				proto_service_key->clear_port();
+			}
+			else
+			{
+				proto_service_key->set_port(port.value());
+			}
 
 			const auto& [scheduler, version, reals] = service_value;
 
@@ -126,7 +136,16 @@ void balancer_t::RealFind(
 			{
 				auto proto_real = proto_service->add_reals();
 				setip(proto_real->mutable_ip(), ip);
-				proto_real->set_port(port);
+
+				if (port.has_value())
+				{
+					proto_real->clear_port();
+				}
+				else
+				{
+					proto_real->set_port(port.value());
+				}
+
 				proto_real->set_enabled(enabled);
 				proto_real->set_weight(weight);
 				proto_real->set_connections(connections);
@@ -152,7 +171,7 @@ void balancer_t::Real(
 		                   real.proto() == common::icp_proto::NetProto::tcp ? IPPROTO_TCP : IPPROTO_UDP,
 		                   real.virtual_port(),
 		                   convert_to_ip_address(real.real_ip()),
-		                   real.real_port(),
+		                   real.has_real_port() ? std::optional<uint16_t>(real.real_port()) : std::nullopt,
 		                   real.enable(),
 		                   real.has_weight() ? std::optional<uint32_t>(real.weight()) : std::nullopt});
 	}
@@ -259,7 +278,7 @@ void balancer_t::reload(const controlplane::base_t& base_prev,
 
 	for (const auto& [module_name, balancer] : base_next.balancers)
 	{
-		std::unordered_set<std::tuple<common::ip_address_t, uint16_t, uint8_t>> vip_vport_proto;
+		std::unordered_set<std::tuple<common::ip_address_t, std::optional<uint16_t>, uint8_t>> vip_vport_proto;
 
 		for (const auto& [service_id,
 		                  virtual_ip,

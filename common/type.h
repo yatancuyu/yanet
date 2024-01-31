@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <map>
 #include <set>
 #include <sstream>
@@ -36,6 +37,7 @@ using tAclRuleId = uint32_t;
 using tAclGroupId = uint32_t;
 using dregress_id_t = uint32_t;
 using balancer_id_t = uint32_t;
+using balancer_fwmark_service_t = uint32_t;
 using balancer_service_id_t = uint32_t;
 using balancer_real_id_t = uint32_t;
 using tun64_id_t = uint32_t;
@@ -2287,7 +2289,8 @@ union tFlowData
 	struct
 	{
 		balancer_id_t id : 8;
-		balancer_service_id_t service_id : 24;
+		balancer_fwmark_service_t fwmark_service: 8;
+		balancer_service_id_t service_id : 16;
 	} balancer;
 
 	struct
@@ -2636,6 +2639,24 @@ struct hash<common::ip_address_t>
 
 template<>
 struct hash<std::tuple<common::ip_address_t, uint16_t, uint8_t>>
+{
+	std::size_t operator()(const std::tuple<common::ip_address_t, uint16_t, uint8_t> vip_vport_proto) const
+	{
+		common::ip_address_t vip = std::get<0>(vip_vport_proto);
+		uint16_t vport = std::get<1>(vip_vport_proto);
+		uint8_t proto = std::get<2>(vip_vport_proto);
+
+		std::size_t res = 0;
+		common::hash_combine(res, vip);
+		common::hash_combine(res, vport);
+		common::hash_combine(res, proto);
+
+		return res;
+	}
+};
+
+template<>
+struct hash<std::tuple<common::ip_address_t, std::optional<uint16_t>, uint8_t>>
 {
 	std::size_t operator()(const std::tuple<common::ip_address_t, uint16_t, uint8_t> vip_vport_proto) const
 	{

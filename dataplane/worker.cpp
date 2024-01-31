@@ -4063,7 +4063,7 @@ inline void cWorker::balancer_handle()
 		const auto& balancer = base.globalBase->balancers[metadata->flow.data.balancer.id];
 
 		///                                                     [metadata->flow.data.balancer.service_id];
-		const balancer_service_id_t service_id = metadata->flow.data.atomic >> 8;
+		const balancer_service_id_t service_id = metadata->flow.data.atomic >> 16;
 		const auto& service = base.globalBase->balancer_services[service_id];
 
 		if (service.flags & YANET_BALANCER_FIX_MSS_FLAG)
@@ -4668,7 +4668,7 @@ inline void cWorker::balancer_icmp_forward_handle()
 		const auto& balancer = base.globalBase->balancers[metadata->flow.data.balancer.id];
 
 		///                                                     [metadata->flow.data.balancer.service_id];
-		const balancer_service_id_t service_id = metadata->flow.data.atomic >> 8;
+		const balancer_service_id_t service_id = metadata->flow.data.atomic >> 16;
 		const auto& service = base.globalBase->balancer_services[service_id];
 
 		dataplane::globalBase::balancer_state_value_t* value;

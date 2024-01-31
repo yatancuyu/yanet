@@ -10,6 +10,7 @@
 #include "controlplane.h"
 #include "errors.h"
 #include "isystem.h"
+#include "type.h"
 
 eResult config_converter_t::process(uint32_t serial)
 {
@@ -1198,13 +1199,13 @@ void config_converter_t::acl_rules_nat64stateless_ingress(controlplane::base::ac
 
 			/* @todo
 			{
-				controlplane::base::acl_rule_transport_icmpv6_t rule_transport{range_t{0x00, 0xFF},
-				                                                               range_t{0x00, 0xFF},
-				                                                               ingressPortRange};
-				acl.nextModuleRules.emplace_back(rule_network,
-				                                 fragState::firstFragment,
-				                                 rule_transport,
-				                                 flow_fragmentation);
+			        controlplane::base::acl_rule_transport_icmpv6_t rule_transport{range_t{0x00, 0xFF},
+			                                                                       range_t{0x00, 0xFF},
+			                                                                       ingressPortRange};
+			        acl.nextModuleRules.emplace_back(rule_network,
+			                                         fragState::firstFragment,
+			                                         rule_transport,
+			                                         flow_fragmentation);
 			}
 			*/
 
@@ -1456,13 +1457,13 @@ void config_converter_t::acl_rules_nat64stateless_egress(controlplane::base::acl
 
 			/* @todo
 			{
-				controlplane::base::acl_rule_transport_icmpv4_t rule_transport{range_t{0x00, 0xFF},
-				                                                               range_t{0x00, 0xFF},
-				                                                               egressPortRange};
-				acl.nextModuleRules.emplace_back(rule_network,
-				                                 fragState::firstFragment,
-				                                 rule_transport,
-				                                 flow_fragmentation);
+			        controlplane::base::acl_rule_transport_icmpv4_t rule_transport{range_t{0x00, 0xFF},
+			                                                                       range_t{0x00, 0xFF},
+			                                                                       egressPortRange};
+			        acl.nextModuleRules.emplace_back(rule_network,
+			                                         fragState::firstFragment,
+			                                         rule_transport,
+			                                         flow_fragmentation);
 			}
 			*/
 
@@ -1624,6 +1625,8 @@ void config_converter_t::acl_rules_balancer(controlplane::base::acl_t& acl,
 
 		flow.data.balancer.service_id = service_id;
 
+		flow.data.balancer.fwmark_service = vport.has_value() ? 0 : 1;
+
 		if (vip.is_ipv4())
 		{
 			controlplane::base::acl_rule_network_ipv4_t rule_network({common::ipv4_prefix_default},
@@ -1638,13 +1641,13 @@ void config_converter_t::acl_rules_balancer(controlplane::base::acl_t& acl,
 			if (proto == IPPROTO_TCP)
 			{
 				controlplane::base::acl_rule_transport_tcp_t rule_transport{range_t{0x0000, 0xFFFF},
-				                                                            vport};
+				                                                            vport.has_value() ? ranges_t{vport.value()} : ranges_t{}};
 				acl.nextModuleRules.emplace_back(rule_network, rule_transport, flow);
 			}
 			else if (proto == IPPROTO_UDP)
 			{
 				controlplane::base::acl_rule_transport_udp_t rule_transport{range_t{0x0000, 0xFFFF},
-				                                                            vport};
+				                                                            vport.has_value() ? ranges_t{vport.value()} : ranges_t{}};
 				acl.nextModuleRules.emplace_back(rule_network, rule_transport, flow);
 			}
 			else
@@ -1666,13 +1669,13 @@ void config_converter_t::acl_rules_balancer(controlplane::base::acl_t& acl,
 			if (proto == IPPROTO_TCP)
 			{
 				controlplane::base::acl_rule_transport_tcp_t rule_transport{range_t{0x0000, 0xFFFF},
-				                                                            vport};
+				                                                            vport.has_value() ? ranges_t{vport.value()} : ranges_t{}};
 				acl.nextModuleRules.emplace_back(rule_network, rule_transport, flow);
 			}
 			else if (proto == IPPROTO_UDP)
 			{
 				controlplane::base::acl_rule_transport_udp_t rule_transport{range_t{0x0000, 0xFFFF},
-				                                                            vport};
+				                                                            vport.has_value() ? ranges_t{vport.value()} : ranges_t{}};
 				acl.nextModuleRules.emplace_back(rule_network, rule_transport, flow);
 			}
 			else

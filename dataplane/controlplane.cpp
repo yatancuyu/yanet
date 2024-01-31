@@ -1066,7 +1066,7 @@ common::idp::balancer_connection::response cControlPlane::balancer_connection(co
 					}
 
 					if (filter_virtual_port &&
-					    rte_be_to_cpu_16(virtual_port) != *filter_virtual_port)
+					    rte_be_to_cpu_16(virtual_port.second) != *filter_virtual_port)
 					{
 						continue;
 					}

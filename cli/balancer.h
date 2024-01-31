@@ -107,6 +107,8 @@ void service(std::string module_string,
 				}
 			}
 
+			// std::variant<uint_16_t, ..>
+
 			table.insert(module_name,
 			             virtual_ip,
 			             proto_string,
@@ -250,10 +252,10 @@ void real_find(std::string module_string,
 				table.insert(balancer.module(),
 				             virtual_ip,
 				             proto_string,
-				             service.key().port(),
+				             service.key().has_port() ? std::make_optional(service.key().port()) : std::nullopt,
 				             service.scheduler(),
 				             real_ip,
-				             real.port(),
+				             real.has_port() ? std::make_optional(real.port()) : std::nullopt,
 				             real.enabled(),
 				             real.weight(),
 				             connections,
@@ -309,7 +311,7 @@ void state(std::string module,
 	std::map<balancer_id_t,
 	         std::map<std::tuple<common::ip_address_t, ///< virtual_ip
 	                             uint8_t, ///< proto
-	                             uint16_t>, ///< virtual_port
+	                             std::optional<uint16_t>>, ///< virtual_port
 	                  std::map<common::idp::balancer_connection::real_key,
 	                           std::map<std::tuple<common::ip_address_t, ///< client_ip
 	                                               uint16_t>, ///< client_port

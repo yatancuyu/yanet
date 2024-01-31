@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <rte_byteorder.h>
 #include <rte_ether.h>
 

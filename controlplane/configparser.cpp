@@ -1,4 +1,5 @@
 #include <fstream>
+#include <optional>
 #include <sstream>
 
 #include "errors.h"
@@ -1714,7 +1715,7 @@ void config_parser_t::loadConfig_balancer_services(controlplane::base_t& baseNex
 			common::ip_address_t real_ip(real_json["ip"].get<std::string>());
 
 			reals.emplace_back(real_ip,
-			                   std::stoll(real_json["port"].get<std::string>(), nullptr, 0),
+			                   exist(real_json, "port") ? std::make_optional(std::stoll(real_json["port"].get<std::string>(), nullptr, 0)) : std::nullopt,
 			                   weight);
 
 			balancer.reals_count++;
@@ -1742,7 +1743,7 @@ void config_parser_t::loadConfig_balancer_services(controlplane::base_t& baseNex
 		balancer.services.emplace_back(baseNext.services_count + 1, ///< 0 is invalid id
 		                               service_json["vip"].get<std::string>(),
 		                               proto,
-		                               std::stoll(service_json["vport"].get<std::string>(), nullptr, 0),
+		                               exist(service_json, "port") ? std::make_optional(std::stoll(service_json["port"].get<std::string>(), nullptr, 0)) : std::nullopt,
 		                               service_version,
 		                               scheduler,
 		                               scheduler_params,

@@ -800,12 +800,12 @@ using connection = std::tuple<common::ip_address_t, ///< client_ip
                               uint16_t>; ///< timestamp_gc
 
 using real_key = std::tuple<common::ip_address_t, ///< real_ip
-                            uint16_t>; ///< real_port
+                            std::optional<uint16_t>>; ///< real_port
 
 using connections = std::map<std::tuple<balancer_id_t,
                                         common::ip_address_t, ///< virtual_ip
                                         uint8_t, ///< proto
-                                        uint16_t, ///< virtual_port
+                                        std::optional<uint16_t>, ///< virtual_port
                                         real_key>,
                              std::vector<connection>>;
 
@@ -824,7 +824,7 @@ namespace balancer_service_connections
 using service_key_t = std::tuple<balancer_id_t,
                                  common::ip_address_t, ///< virtual_ip
                                  uint8_t, ///< proto
-                                 uint16_t>; ///< virtual_port
+                                 std::optional<uint16_t>>; ///< virtual_port
 
 using connections = std::map<service_key_t, common::uint32>;
 
@@ -855,7 +855,7 @@ using response = eResult;
 
 namespace update_vip_vport_proto
 {
-using request = std::tuple<uint32_t, std::unordered_set<std::tuple<common::ip_address_t, uint16_t, uint8_t>>>;
+using request = std::tuple<uint32_t, std::unordered_set<std::tuple<common::ip_address_t, std::optional<uint16_t>, uint8_t>>>;
 
 using response = eResult;
 }
